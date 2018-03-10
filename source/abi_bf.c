@@ -52,7 +52,7 @@ static void append(struct buffer buf, size_t max, uint8_t byte){
  *          0 for ok
  * */
 static int jump_match_left(struct buffer buf){
-        int right = 1;  //!< count of ']'
+        int right = 0;  //!< count of ']'
         do{
                 if(']' == *ins_pointer){
                         right++;
@@ -170,7 +170,7 @@ static void abi_op(void){
                                 //!< next instruction
                                 printf("[info]:`]` not jump.\n");
                         }else{
-                                printf("[info]:instruction offset==%d.\n",ins_pointer-ins_buffer.buf);
+                                //printf("[info]:instruction offset==%d.\n",ins_pointer-ins_buffer.buf);
                                 //!< jump back to matching '[' in ins_buffer
                                 if(-1 == jump_match_left(ins_buffer)){
                                         fprintf(stderr,"Err:find matching `[` fail!\n");
@@ -211,7 +211,7 @@ void abi_f(FILE * f){
 
                 //!< handle instructions in `ins_buffer`
                 do{
-                        printf("[info]:op==`%c`,offset==`%d`.\n",*ins_pointer,ins_pointer-ins_buffer.buf);
+                        //printf("[info]:op==`%c`,offset==`%d`.\n",*ins_pointer,ins_pointer-ins_buffer.buf);
                         abi_op();
                 }while(++ins_pointer != ins_buffer.buf+ins_buffer.len_valid);
         }
