@@ -147,10 +147,13 @@ static void abi_op(void){
                         break;
 
                 case ',':
+			/*
                         if(ins_buffer.buf+ins_buffer.len_valid-1 != ins_pointer){
                                 ins_pointer++;
                                 *mem_pointer = *ins_pointer;
                         }
+			*/
+			*mem_pointer = getchar();
                         break;
 
                 case '[':

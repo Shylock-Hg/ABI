@@ -60,7 +60,7 @@ int main(int argc, char * argv[]){
                         abort();
                 }
 
-        }else if(MODE_INTERACTIVE){
+        }else if(MODE_INTERACTIVE == mode){
                 i_stream = stdin;
                 if(NULL == i_stream){
                         fprintf(stderr,"Err:null stdin.\n");
