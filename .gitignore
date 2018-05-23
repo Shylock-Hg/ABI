@@ -53,3 +53,5 @@ dkms.conf
 
 #shylock
 **/build
+tags
+log

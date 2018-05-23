@@ -181,6 +181,11 @@ static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
 			case BF_TOKEN_CTL_LOOP_END:
 				//< a ast node with invalid instruction
 				//< and without children
+				node->instruction->token = 
+					BF_TOKEN_CTL_LOOP_END;
+				node->instruction->count = 1;
+				//node->next = NULL; default
+				//node->loop = NULL;
 				return root;
 				break;
 			//default:
@@ -307,6 +312,7 @@ void bf_instruction_interpreter(bf_context_t * context, bf_instruction_t * instr
 	if(NULL == context || NULL == instruction)
 		return;
 
+	//fputc(root->instruction->token, stderr);
 	switch(instruction->token){
 		case BF_TOKEN_MEM_ITEM_INC:
 			if(context->mem_index < context->mem_size){
