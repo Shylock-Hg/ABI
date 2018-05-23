@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../include/abi_bf.h"
 
@@ -222,6 +223,7 @@ void bf_ast_init_4_script(bf_ast_t * ast, const char * script){
  * */
 bf_context_t * bf_context_new(size_t mem_size){
 	uint8_t * mem = malloc(mem_size);
+	memset(mem, 0x00, mem_size);
 	bf_context_t * context = malloc(sizeof(bf_context_t));
 	assert(NULL != mem && NULL != context);
 	if(NULL == mem || NULL == context)
@@ -284,13 +286,15 @@ static void bf_ast_execute(bf_context_t * context, bf_ast_t * ast, bf_ast_node_t
 	ast->interpreter(context, root->instruction);
 #ifndef NDEBUG
 	//< trace instruction stream
-	fputc(root->instruction->token, stderr);
+	//fputc(root->instruction->token, stderr);
 #endif
 
 	//< pre-order traversal
 	//< loop until point to 0
-	while(0 < context->mem_ptr[context->mem_index]){
-		bf_ast_execute(context, ast, root->loop);
+	if(BF_TOKEN_CTL_LOOP_START == root->instruction->token){
+		while(0 < context->mem_ptr[context->mem_index]){
+			bf_ast_execute(context, ast, root->loop);
+		}
 	}
 	bf_ast_execute(context, ast, root->next);
 }
