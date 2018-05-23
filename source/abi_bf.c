@@ -1,222 +1,356 @@
-#include "stdio.h"
-#include "assert.h"
-#include "stdlib.h"
+//#define NDEBUG
 
-/******************** inner-memory[data,instruction] of brainfuck interpreter ********************/
-#define MAX_MEM_BUF_LEN  30000
-#define MAX_INS_BUF_LEN  30000
+#include <stdio.h>
+#include <assert.h>
+#include <stdlib.h>
 
-struct buffer {
-        char * buf;
-        size_t len_valid;  //!< length of data cached
-};
+#include "../include/abi_bf.h"
 
-//!< brainfuck interpreter memory
-static char mem[MAX_MEM_BUF_LEN] = {0};
-static struct buffer mem_buffer = {mem+0,0};
-//!< brainfuck memory pointer
-static char * mem_pointer = mem+0;
-
-
-//!< buffer for brainfuck script cache
-static char instruction[MAX_INS_BUF_LEN] = {0};
-static struct buffer ins_buffer = {instruction+0,0};
-//!< brainfuck script stream pointer
-static char * ins_pointer = instruction+0;
-
-/* ******************** brainfuck interpreter ******************** */
-
-
-/*  \brief append a byte to buffer
- *  \param buf buffer to append
- *  \param max max size of buffer
- *  \param byte byte appended to buffer
- *  \retval 0 for ok,-1 for fail
+/*! \brief create a instruction
+ *  \param token token character
+ *  \param count count of token countinue
+ *  \retval created brainfuck instruction
  * */
-/*
-static void append(struct buffer buf, size_t max, uint8_t byte){
-        if(buf.len_valid < max){  //!< buf.buf[max_length] == '\0'
-                buf.buf[buf.len_valid] = byte;
-                buf.len_valid++;
-        }else{
-                fprintf(stderr,"Out of buffer in `%s`.\n",__FUNCTION__);
-                abort();
-        }
-}
-*/
+bf_instruction_t * bf_instruction_new(char token, int count){
+	bf_instruction_t * instruction = malloc(sizeof(bf_instruction_t));
+	assert(NULL != instruction);
+	if(NULL == instruction)
+		return NULL;
 
-/*  \brief find the matching '[' 
- *  \param buf buffer to find
- *  \param max max size of buf
- *  \retval -1 for not find
- *          0 for ok
- * */
-static int jump_match_left(struct buffer buf){
-        int right = 0;  //!< count of ']'
-        do{
-                if(']' == *ins_pointer){
-                        right++;
-                }else if('[' == *ins_pointer){
-                        right--;
-                }
-                if(0 == right){
-                        //!< next instruction
-                        return 0;
-                }
-        }
-        while(ins_pointer-- != buf.buf+0);
-
-        //!< not found
-        return -1;
+	instruction->count = count;
+	instruction->token = token;
+	
+	return instruction;
 }
 
-/*  \brief find the matching ']' 
- *  \param buf buffer to find
- *  \param max max size of buf
- *  \retval -1 for not find
- *          0 for ok
+/*! \brief release brainfuck instruction
  * */
-static int jump_match_right(struct buffer buf){
-        int left = 1;  //!< count of '['
-        while(++ins_pointer != buf.buf+buf.len_valid){
-                if('[' == *ins_pointer){
-                        left++;
-                }else if(']' == *ins_pointer){
-                        left--;
-                }
-                if(0 == left){
-                        //!< next instruction
-                        return 0;
-                }
-        }
-
-        //!< not found
-        return -1;
+void bf_instruction_release(bf_instruction_t * instruction){
+	free(instruction);
 }
 
-//!< brainfuck all operator
-/*
-static char bf_instruction[] =  {
-        '>',  //!< increment the byte pointer
-        '<',  //!< decrement the byte pointer
-        '+',  //!< increment the pointed byte
-        '-',  //!< increment the pointed byte
-        '.',  //!< output the pointed byte
-        ',',  //!< accept one byte input to pointed byte
-        '[',  //!< if the pointed byte equal to zero,then jump forward to ']'
-        ']',  //!< if the pointed byte not equal to zero,then jump back to '['
-};
-*/
-
-/*  \brief handle a operiton of brainfuck
+/*! \brief create a brainfuck AST node
+ *  \param instruction the instruction of AST node
+ *  \retval created brainfuck AST node
  * */
-static void abi_op(void){
+bf_ast_node_t * bf_ast_node_new(bf_instruction_t * instruction){
+	bf_ast_node_t * node = malloc(sizeof(bf_ast_node_t));
+	assert(NULL != instruction && NULL != node);
+	if(NULL == instruction || NULL == node)
+		return NULL;
 
-        switch(*ins_pointer){
-                case '>':
-                        if(mem+sizeof(mem) == mem_pointer){
-                                //!< outof memory
-                                fprintf(stderr,"Err:Increment operation out of memory!\n");
-                                abort();
-                        }else{
-                                //printf("Inc instruction pointer.\n");
-                                mem_pointer++;
-                        }
-                        break;
+	node->instruction = instruction;
+	node->loop = NULL;
+	node->next = NULL;
 
-                case '<':
-                        if(mem+0 == mem_pointer){
-                                //!< outof memory
-                                fprintf(stderr,"Err:Decrement operation out of memory!\n");
-                                abort();
-                        }else{
-                                mem_pointer--;
-                        }
-                        break;
-
-                case '+':
-                        (*mem_pointer)++;
-                        break;
-
-                case '_':
-                        (*mem_pointer)--;
-                        break;
-
-                case '.':
-                        putchar(*mem_pointer);
-                        break;
-
-                case ',':
-			/*
-                        if(ins_buffer.buf+ins_buffer.len_valid-1 != ins_pointer){
-                                ins_pointer++;
-                                *mem_pointer = *ins_pointer;
-                        }
-			*/
-			*mem_pointer = getchar();
-                        break;
-
-                case '[':
-                        if(0 == *mem_pointer){
-                                //!< jump forward to matching ']' in ins_buffer
-                                if(-1 == jump_match_right(ins_buffer)){
-                                        fprintf(stderr,"Err:find matching `[` fail!\n");
-                                }
-                                printf("[info]:forward-`%c`.\n",*ins_pointer);
-                        }else{
-                                //printf("[info]:`[` not jump.\n");
-                        }
-                        break;
-
-                case ']':
-                        if(0 == *mem_pointer){
-                                //!< next instruction
-                                printf("[info]:`]` not jump.\n");
-                        }else{
-                                //printf("[info]:instruction offset==%d.\n",ins_pointer-ins_buffer.buf);
-                                //!< jump back to matching '[' in ins_buffer
-                                if(-1 == jump_match_left(ins_buffer)){
-                                        fprintf(stderr,"Err:find matching `[` fail!\n");
-                                }
-                                //printf("[info]:back-`%c`,offset==`%d`.\n",*ins_pointer,ins_pointer-ins_buffer.buf);
-                                //printf("[info]:instruction offset==%d.\n",ins_pointer-ins_buffer.buf);
-                                //printf("[info]:mem_pointer==%d.\n",*mem_pointer);
-                        }
-                        break;
-
-                deafault:
-                        //fprintf(stderr,"Err:Invalid instruction `%c`!\n",*ins_pointer);
-                        break;
-        }       
+	return node;
 }
 
-/*  \brief another brainfuck interpreter to script file
- *  \param
+/*! \brief release the brainfuck AST node
  * */
-void abi_f(FILE * f){
-        /*
-        char c = 0;
-        while(EOF != (c = fgetc(f))){
-                //!< append instruction
-                append(ins_buffer,MAX_INS_BUF_LEN,c);
-                //!< handle instruction
-                abi_op(c, f);
-        }
-        */
-
-        size_t len = fread(ins_buffer.buf,sizeof(char),sizeof(instruction)-1,f);
-        if(0 == len){
-                fprintf(stderr,"Err:empty source file.\n");
-        }else{
-                ins_buffer.buf[len] = '\0';
-                ins_buffer.len_valid = len;  //!< count of instructions
-                //printf("%s\n",ins_buffer.buf);
-
-                //!< handle instructions in `ins_buffer`
-                do{
-                        //printf("[info]:op==`%c`,offset==`%d`.\n",*ins_pointer,ins_pointer-ins_buffer.buf);
-                        abi_op();
-                }while(++ins_pointer != ins_buffer.buf+ins_buffer.len_valid);
-        }
+void bf_ast_node_release(bf_ast_node_t * node){
+	free(node->instruction);
+	free(node);
 }
+
+/*! \brief create a brainfuck AST 
+ *  \param interpreter interpreter of each brainfuck instruction
+ *  \retval created brainfuck AST
+ * */
+bf_ast_t * bf_ast_new(bf_ast_instruction_interpreter_t interpreter){
+	bf_ast_t * ast = malloc(sizeof(bf_ast_t));
+	assert(NULL != interpreter && NULL != ast);
+	if(NULL == interpreter || NULL ==ast)
+		return NULL;
+
+	ast->interpreter = interpreter;
+	ast->root = NULL;
+
+	return ast;
+}
+
+static void bf_ast_release_post(bf_ast_node_t * root){
+	//assert(NULL != root);
+	if(NULL == root)
+		return ;
+
+	bf_ast_release_post(root->loop);
+	bf_ast_release_post(root->next);
+
+	bf_instruction_release(root->instruction);
+	free(root);
+}
+
+/*! \brief release a brainfuck AST
+ *  \param AST to release
+ * */
+void bf_ast_release(bf_ast_t * ast){
+	assert(NULL != ast);
+	if(NULL == ast)
+		return;
+
+	//!< release tree
+	bf_ast_release_post(ast->root);
+
+	//!< release handle
+	free(ast);
+}
+
+/*! \brief add node to a brainfuck AST by token
+ *  \param ast instance of brainfuck AST
+ *  \param token token of brainfuck instruction
+ * */
+//void bf_ast_node_add(bf_ast_t * ast, char token);
+
+/*! \brief initialize brainfuck AST from script file
+ *  \param ast brainfuck AST instance
+ *  \param file brainfuck script file name
+ * */
+static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
+	assert(NULL != stream);
+	if(NULL == stream)
+		return NULL;
+
+	char c = 0;
+	bf_ast_node_t * root = bf_ast_node_new(bf_instruction_new('\0', 0));
+	bf_ast_node_t * node = root;
+
+	while((c = fgetc(stream)) != EOF){
+		switch(c){
+			case BF_TOKEN_MEM_ITEM_INC:
+				do{
+					node->instruction->token = 
+						BF_TOKEN_MEM_ITEM_INC;
+					node->instruction->count ++;
+				
+				}while((c = fgetc(stream)) == BF_TOKEN_MEM_ITEM_INC);
+				ungetc(c, stream);
+				break;
+			case BF_TOKEN_MEM_ITEM_DEC:
+				do{
+					node->instruction->token = 
+						BF_TOKEN_MEM_ITEM_DEC;
+					node->instruction->count ++;
+				
+				}while((c = fgetc(stream)) == BF_TOKEN_MEM_ITEM_DEC);
+				ungetc(c, stream);
+				break;
+			case BF_TOKEN_MEM_PTR_INC:
+				do{
+					node->instruction->token = 
+						BF_TOKEN_MEM_PTR_INC;
+					node->instruction->count ++;
+				
+				}while((c = fgetc(stream)) == BF_TOKEN_MEM_PTR_INC);
+				ungetc(c, stream);
+				break;
+			case BF_TOKEN_MEM_PTR_DEC:
+				do{
+					node->instruction->token = 
+						BF_TOKEN_MEM_PTR_DEC;
+					node->instruction->count ++;
+				
+				}while((c = fgetc(stream)) == BF_TOKEN_MEM_PTR_DEC);
+				ungetc(c, stream);
+				break;
+			case BF_TOKEN_MEM_ITEM_OUTPUT:
+				do{
+					node->instruction->token = 
+						BF_TOKEN_MEM_ITEM_OUTPUT;
+					node->instruction->count ++;
+				
+				}while((c = fgetc(stream)) == BF_TOKEN_MEM_ITEM_OUTPUT);
+				ungetc(c, stream);
+				break;
+			case BF_TOKEN_MEM_ITEM_INPUT:
+				do{
+					node->instruction->token = 
+						BF_TOKEN_MEM_ITEM_INPUT;
+					node->instruction->count ++;
+				
+				}while((c = fgetc(stream)) == BF_TOKEN_MEM_ITEM_INPUT);
+				ungetc(c, stream);
+				break;
+			case BF_TOKEN_CTL_LOOP_START:
+				node->instruction->token = 
+					BF_TOKEN_CTL_LOOP_START;
+				node->instruction->count = 1;
+				//< build loop branch
+				node->loop = bf_ast_init_4_stream(stream);
+				break;
+			case BF_TOKEN_CTL_LOOP_END:
+				//< a ast node with invalid instruction
+				//< and without children
+				return root;
+				break;
+			//default:
+				//fprintf(stderr, "useless token `%c`\n",c);
+		}  //!< end of switch(token)
+
+		//< initialize and scroll to new node
+		node->next = bf_ast_node_new(bf_instruction_new('\0', 0));
+		node = node->next;
+
+	}  //!< end of while(! EOF)
+	
+	return root;
+}
+
+
+void bf_ast_init_4_script(bf_ast_t * ast, const char * script){
+	assert(NULL != ast && NULL != script);
+	if(NULL == ast || NULL == script)
+		return;
+
+	FILE * stream = fopen(script, "r");
+	assert(NULL != stream);
+
+	if(NULL != stream){
+		ast->root = bf_ast_init_4_stream(stream);
+		fclose(stream);
+	}
+}
+
+/*! \brief create a context of brainfuck interpreter runtime
+ *  \param mem_size size of brianfuck interpreter 
+ *  \param context of a interpreter
+ * */
+bf_context_t * bf_context_new(size_t mem_size){
+	uint8_t * mem = malloc(mem_size);
+	bf_context_t * context = malloc(sizeof(bf_context_t));
+	assert(NULL != mem && NULL != context);
+	if(NULL == mem || NULL == context)
+		return NULL;
+
+	context->mem_ptr = mem;
+	context->mem_size = mem_size;
+	context->mem_index = 0;
+
+	return context;
+}
+
+/*! \brief release a context
+ *  \parma context to release
+ * */
+void bf_context_release(bf_context_t * context){
+	assert(NULL != context);
+	if(NULL == context)
+		return;
+
+	free(context->mem_ptr);
+	free(context);
+}
+
+static void _bf_ast_dfs(bf_ast_node_t * root){
+	if(NULL == root)
+		return;
+
+	//fprintf(stderr, "token-`%c`, count-`%d`.\n", root->instruction->token,
+			//root->instruction->count);
+	for(int i=0; i<root->instruction->count; i++)
+		fputc(root->instruction->token, stderr);
+
+	_bf_ast_dfs(root->loop);
+	_bf_ast_dfs(root->next);
+}
+
+void bf_ast_dfs(bf_ast_t * ast){
+	assert(NULL != ast);
+	if(NULL == ast)
+		return;
+
+	_bf_ast_dfs(ast->root);
+}
+
+/*! \brief execute brainfuck AST by variant pre-order traversal in specify context
+ *  \param context current runtime context 
+ *  \param ast brainfuck AST to execute
+ * */
+static void bf_ast_execute(bf_context_t * context, bf_ast_t * ast, bf_ast_node_t * root){
+	assert(NULL != context && NULL != ast && NULL != ast->interpreter);
+	if(NULL == context || NULL == ast || NULL == ast->interpreter)
+		return;
+
+	//< execute instruction
+	if(NULL == root)
+		return;
+
+	//< execute instruction(excipt control instruction)
+	ast->interpreter(context, root->instruction);
+#ifndef NDEBUG
+	//< trace instruction stream
+	fputc(root->instruction->token, stderr);
+#endif
+
+	//< pre-order traversal
+	//< loop until point to 0
+	while(0 < context->mem_ptr[context->mem_index]){
+		bf_ast_execute(context, ast, root->loop);
+	}
+	bf_ast_execute(context, ast, root->next);
+}
+
+/*! \brief execute brainfuck AST by variant pre-order traversal in specify context
+ *  \param context current runtime context 
+ *  \param ast brainfuck AST to execute
+ * */
+void bf_execute(bf_context_t * context, bf_ast_t * ast){
+	assert(NULL != context && NULL != ast);
+	if(NULL == context || NULL == ast)
+		return;
+
+	bf_ast_execute(context, ast, ast->root);
+}
+
+void bf_instruction_interpreter(bf_context_t * context, bf_instruction_t * instruction){
+	assert(NULL != context && NULL != instruction);
+	if(NULL == context || NULL == instruction)
+		return;
+
+	switch(instruction->token){
+		case BF_TOKEN_MEM_ITEM_INC:
+			if(context->mem_index < context->mem_size){
+				context->mem_ptr[context->mem_index] += instruction->count;
+			}else{
+				
+			}
+			break;
+		case BF_TOKEN_MEM_ITEM_DEC:
+			if(context->mem_index < context->mem_size){
+				context->mem_ptr[context->mem_index] -= instruction->count;
+			}else{
+				
+			}
+			break;
+		case BF_TOKEN_MEM_PTR_INC:
+			if(context->mem_size-1 > (context->mem_index + instruction->count))
+				context->mem_index += instruction->count;
+			break;
+		case BF_TOKEN_MEM_PTR_DEC:
+			if(0 < (context->mem_index - instruction->count))
+				context->mem_index -= instruction->count;
+			break;
+		case BF_TOKEN_MEM_ITEM_OUTPUT:
+			for(int i=0; i<instruction->count; i++){
+				putchar(context->mem_ptr[context->mem_index]);
+			}
+			break;
+		case BF_TOKEN_MEM_ITEM_INPUT:
+			for(int i=0; i<instruction->count; i++){
+				//printf("Please Input char:");
+				context->mem_ptr[context->mem_index] = getchar();
+			}
+			break;
+		//< only execute non control instruction
+		case BF_TOKEN_CTL_LOOP_START:
+			break;
+		case BF_TOKEN_CTL_LOOP_END:
+			break;
+		//default:
+			//fprintf(stderr, "useless instruction->token `%c`\n",instruction->token);
+	}
+}
+
+/// @}
+
 

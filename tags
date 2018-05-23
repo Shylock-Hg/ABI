@@ -1,0 +1,58 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ABI_MEM_SIZE	source/abi.c	13;"	d	file:
+BF_TOKEN_CTL_LOOP_END	include/abi_bf.h	18;"	d
+BF_TOKEN_CTL_LOOP_START	include/abi_bf.h	17;"	d
+BF_TOKEN_MEM_ITEM_DEC	include/abi_bf.h	12;"	d
+BF_TOKEN_MEM_ITEM_INC	include/abi_bf.h	11;"	d
+BF_TOKEN_MEM_ITEM_INPUT	include/abi_bf.h	16;"	d
+BF_TOKEN_MEM_ITEM_OUTPUT	include/abi_bf.h	15;"	d
+BF_TOKEN_MEM_PTR_DEC	include/abi_bf.h	14;"	d
+BF_TOKEN_MEM_PTR_INC	include/abi_bf.h	13;"	d
+CFLAGS	Makefile	/^CFLAGS = -std=c99 -Wall$/;"	m
+DEPFILES	Makefile	/^DEPFILES = $(patsubst %.o, %.d, $(OBJS))$/;"	m
+DIR_BUILD	Makefile	/^DIR_BUILD = .\/build$/;"	m
+OBJS	Makefile	/^OBJS = $(addprefix $(DIR_BUILD)\/, $(patsubst %.c, %.o, $(notdir $(SOURCES))))$/;"	m
+PPFLAGS	Makefile	/^PPFLAGS = -MT $@ -MMD -MP -MF $(DIR_BUILD)\/$*.d$/;"	m
+SOURCES	Makefile	/^SOURCES = $(wildcard source\/*.c)$/;"	m
+STR_PARAM	source/abi.c	11;"	d	file:
+TARGET	Makefile	/^TARGET = test$/;"	m
+_ABI_BF_H_	include/abi_bf.h	2;"	d
+bf_ast	include/abi_bf.h	/^typedef struct bf_ast {$/;"	s
+bf_ast_execute	source/abi_bf.c	/^static void bf_ast_execute(bf_context_t * context, bf_ast_t * ast, bf_ast_node_t * root){$/;"	f	file:
+bf_ast_init_4_script	source/abi_bf.c	/^void bf_ast_init_4_script(bf_ast_t * ast, const char * script){$/;"	f
+bf_ast_init_4_stream	source/abi_bf.c	/^static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){$/;"	f	file:
+bf_ast_instruction_interpreter_t	include/abi_bf.h	/^typedef void (*bf_ast_instruction_interpreter_t)(bf_context * context, bf_instruction_t * instruction);$/;"	t
+bf_ast_new	source/abi_bf.c	/^bf_ast_t * bf_ast_new(bf_ast_instruction_interpreter_t interpreter){$/;"	f
+bf_ast_node	include/abi_bf.h	/^typedef struct bf_ast_node {$/;"	s
+bf_ast_node_new	source/abi_bf.c	/^bf_ast_node_t * bf_ast_node_new(bf_instruction_t * instruction){$/;"	f
+bf_ast_node_release	source/abi_bf.c	/^void bf_ast_node_release(bf_ast_node_t * node){$/;"	f
+bf_ast_node_t	include/abi_bf.h	/^} bf_ast_node_t;$/;"	t	typeref:struct:bf_ast_node
+bf_ast_release	source/abi_bf.c	/^void bf_ast_release(bf_ast_t * ast){$/;"	f
+bf_ast_release_post	source/abi_bf.c	/^static void bf_ast_release_post(bf_ast_node_t * root){$/;"	f	file:
+bf_ast_t	include/abi_bf.h	/^} bf_ast_t;$/;"	t	typeref:struct:bf_ast
+bf_context	include/abi_bf.h	/^typedef struct bf_context {$/;"	s
+bf_context_new	source/abi_bf.c	/^bf_context_t * bf_context_new(size_t mem_size){$/;"	f
+bf_context_release	source/abi_bf.c	/^void bf_context_release(bf_context_t * context){$/;"	f
+bf_context_t	include/abi_bf.h	/^} bf_context_t;$/;"	t	typeref:struct:bf_context
+bf_execute	source/abi_bf.c	/^void bf_execute(bf_context_t * context, bf_ast_t * ast){$/;"	f
+bf_instruction	include/abi_bf.h	/^typedef struct bf_instruction {$/;"	s
+bf_instruction_interpreter	source/abi_bf.c	/^void bf_instruction_interpreter(bf_context_t * context, bf_instruction_t * instruction){$/;"	f
+bf_instruction_new	source/abi_bf.c	/^bf_instruction_t * bf_instruction_new(char token, int count){$/;"	f
+bf_instruction_release	source/abi_bf.c	/^void bf_instruction_release(bf_instruction_t * instruction){$/;"	f
+bf_instruction_t	include/abi_bf.h	/^} bf_instruction_t;$/;"	t	typeref:struct:bf_instruction
+count	include/abi_bf.h	/^	int count;  \/\/!< count of current instruction	$/;"	m	struct:bf_instruction
+instruction	include/abi_bf.h	/^	bf_instruction_t * instruction;  \/\/!< instruction of current AST node$/;"	m	struct:bf_ast_node
+interpreter	include/abi_bf.h	/^	bf_ast_instruction_interpreter_t interpreter;  \/\/!< interpreter for each instruction$/;"	m	struct:bf_ast
+loop	include/abi_bf.h	/^	struct bf_ast_node * loop;  \/\/!< loop child$/;"	m	struct:bf_ast_node	typeref:struct:bf_ast_node::bf_ast_node
+main	source/abi.c	/^int main(int argc, char * argv[]){$/;"	f
+mem_index	include/abi_bf.h	/^	size_t    mem_index;  \/\/!< index of current memory$/;"	m	struct:bf_context
+mem_ptr	include/abi_bf.h	/^	uint8_t * mem_ptr;  \/\/!< pointer to memory start$/;"	m	struct:bf_context
+mem_size	include/abi_bf.h	/^	size_t    mem_size;  \/\/!< size of memory$/;"	m	struct:bf_context
+next	include/abi_bf.h	/^	struct bf_ast_node * next;  \/\/!< normal child$/;"	m	struct:bf_ast_node	typeref:struct:bf_ast_node::bf_ast_node
+root	include/abi_bf.h	/^	bf_ast_node_t * root;  \/\/!< root of AST $/;"	m	struct:bf_ast
+token	include/abi_bf.h	/^	char token;  \/\/!< type of instruction$/;"	m	struct:bf_instruction
