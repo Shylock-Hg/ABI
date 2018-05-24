@@ -248,25 +248,30 @@ void bf_context_release(bf_context_t * context){
 	free(context);
 }
 
-static void _bf_ast_dfs(bf_ast_node_t * root){
-	if(NULL == root)
-		return;
+static int _bf_ast_dfs(bf_ast_node_t * root, int loop_depth){
+	if(NULL == root){
+		return loop_depth;
+	}
 
 	//fprintf(stderr, "token-`%c`, count-`%d`.\n", root->instruction->token,
 			//root->instruction->count);
 	for(int i=0; i<root->instruction->count; i++)
 		fputc(root->instruction->token, stderr);
 
-	_bf_ast_dfs(root->loop);
-	_bf_ast_dfs(root->next);
+	if(BF_TOKEN_CTL_LOOP_END == root->instruction->token)
+		loop_depth--;
+
+	if(NULL != root->loop)
+		loop_depth = _bf_ast_dfs(root->loop, loop_depth+1);
+	return _bf_ast_dfs(root->next, loop_depth);
 }
 
-void bf_ast_dfs(bf_ast_t * ast){
+int bf_ast_dfs(bf_ast_t * ast){
 	assert(NULL != ast);
 	if(NULL == ast)
-		return;
+		return 0;
 
-	_bf_ast_dfs(ast->root);
+	return _bf_ast_dfs(ast->root, 0);
 }
 
 /*! \brief execute brainfuck AST by variant pre-order traversal in specify context

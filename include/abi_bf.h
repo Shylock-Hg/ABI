@@ -95,9 +95,10 @@ void bf_ast_release(bf_ast_t * ast);
 /*! \brief add node to a brainfuck AST by token
  *  \param ast instance of brainfuck AST
  *  \param token token of brainfuck instruction
+ *  \retval depth of loop
  * */
 //void bf_ast_node_add(bf_ast_t * ast, char token);
-void bf_ast_dfs(bf_ast_t * ast);
+int bf_ast_dfs(bf_ast_t * ast);
 
 /*! \brief initialize brainfuck AST from script file
  *  \param ast brainfuck AST instance

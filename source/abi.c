@@ -57,8 +57,8 @@ int main(int argc, char * argv[]){
 		bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
 		bf_ast_init_4_script(ast, file);
 		bf_context_t * context = bf_context_new(ABI_MEM_SIZE);
-		bf_execute(context, ast);
-		//bf_ast_dfs(ast);
+		//bf_execute(context, ast);
+		fprintf(stderr, "loop depth == `%d`\n", bf_ast_dfs(ast));
 
 		bf_context_release(context);
 		bf_ast_release(ast);
