@@ -13,6 +13,8 @@
 
 #define ABI_MEM_SIZE 30000
 
+#define MAX_LINE_BUF 1024
+
 int main(int argc, char * argv[]){
 
 	int c = 0;  //!< opt character
@@ -56,14 +58,39 @@ int main(int argc, char * argv[]){
 
 		bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
 		bf_ast_init_4_script(ast, file);
+		//bf_ast_dfs_pre(ast);
+
 		bf_context_t * context = bf_context_new(ABI_MEM_SIZE);
-		//bf_execute(context, ast);
-		fprintf(stderr, "loop depth == `%d`\n", bf_ast_dfs(ast));
+
+		/*
+		bf_ast_node_t * tail = bf_ast_tail(ast->root);
+		if(NULL != tail)
+			fprintf(stderr, "tail->ins->token == `%c`\n", 
+					tail->instruction->token);
+		*/
+		
+		if(bf_ast_executable(ast))
+			bf_execute(context, ast);
 
 		bf_context_release(context);
 		bf_ast_release(ast);
 	}else if(MODE_INTERACTIVE == mode){
 
+		char buf[MAX_LINE_BUF] = {0};
+		printf(">>>");
+		fgets(buf, sizeof(buf), stdin);
+
+		bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
+		bf_ast_init_4_string(ast, buf);
+		bf_ast_dfs_pre(ast);
+
+		bf_context_t * context = bf_context_new(ABI_MEM_SIZE);
+
+		if(bf_ast_executable(ast))
+			bf_execute(context, ast);
+
+		bf_context_release(context);
+		bf_ast_release(ast);
 	}else{
 		fprintf(stderr,"Unkown mode!\n");
 		abort();

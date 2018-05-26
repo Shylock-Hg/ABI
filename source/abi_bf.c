@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "../include/abi_bf.h"
+#include "../include/abi_tokens.h"
 
 /*! \brief create a instruction
  *  \param token token character
@@ -107,25 +108,28 @@ void bf_ast_release(bf_ast_t * ast){
  *  \param ast brainfuck AST instance
  *  \param file brainfuck script file name
  * */
-static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
-	assert(NULL != stream);
-	if(NULL == stream)
+static bf_ast_node_t * bf_ast_init_4_source(FILE * stream, bf_tokens_t * tokens){
+	//assert(NULL == stream && NULL == tokens);
+	//assert(NULL != stream && NULL != tokens);
+	if(NULL == stream && NULL == tokens)
+		return NULL;
+	if(NULL != stream && NULL != tokens)
 		return NULL;
 
 	char c = 0;
 	bf_ast_node_t * root = bf_ast_node_new(bf_instruction_new('\0', 0));
 	bf_ast_node_t * node = root;
 
-	while((c = fgetc(stream)) != EOF){
+	while((c = bf_ast_getc_4_source(stream, tokens)) != EOF){
 		switch(c){
 			case BF_TOKEN_MEM_ITEM_INC:
 				do{
 					node->instruction->token = 
 						BF_TOKEN_MEM_ITEM_INC;
 					node->instruction->count ++;
-				
-				}while((c = fgetc(stream)) == BF_TOKEN_MEM_ITEM_INC);
-				ungetc(c, stream);
+					//fprintf(stderr, "build ast from `%c`\n", node->instruction->token);
+				}while((c = bf_ast_getc_4_source(stream, tokens)) == BF_TOKEN_MEM_ITEM_INC);
+				bf_ast_ungetc_2_source(c, stream, tokens);
 				break;
 			case BF_TOKEN_MEM_ITEM_DEC:
 				do{
@@ -133,8 +137,9 @@ static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
 						BF_TOKEN_MEM_ITEM_DEC;
 					node->instruction->count ++;
 				
-				}while((c = fgetc(stream)) == BF_TOKEN_MEM_ITEM_DEC);
-				ungetc(c, stream);
+					//fprintf(stderr, "build ast from `%c`\n", node->instruction->token);
+				}while((c = bf_ast_getc_4_source(stream, tokens)) == BF_TOKEN_MEM_ITEM_DEC);
+				bf_ast_ungetc_2_source(c, stream, tokens);
 				break;
 			case BF_TOKEN_MEM_PTR_INC:
 				do{
@@ -142,8 +147,9 @@ static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
 						BF_TOKEN_MEM_PTR_INC;
 					node->instruction->count ++;
 				
-				}while((c = fgetc(stream)) == BF_TOKEN_MEM_PTR_INC);
-				ungetc(c, stream);
+					//fprintf(stderr, "build ast from `%c`\n", node->instruction->token);
+				}while((c = bf_ast_getc_4_source(stream, tokens)) == BF_TOKEN_MEM_PTR_INC);
+				bf_ast_ungetc_2_source(c, stream, tokens);
 				break;
 			case BF_TOKEN_MEM_PTR_DEC:
 				do{
@@ -151,8 +157,9 @@ static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
 						BF_TOKEN_MEM_PTR_DEC;
 					node->instruction->count ++;
 				
-				}while((c = fgetc(stream)) == BF_TOKEN_MEM_PTR_DEC);
-				ungetc(c, stream);
+					//fprintf(stderr, "build ast from `%c`\n", node->instruction->token);
+				}while((c = bf_ast_getc_4_source(stream, tokens)) == BF_TOKEN_MEM_PTR_DEC);
+				bf_ast_ungetc_2_source(c, stream, tokens);
 				break;
 			case BF_TOKEN_MEM_ITEM_OUTPUT:
 				do{
@@ -160,8 +167,9 @@ static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
 						BF_TOKEN_MEM_ITEM_OUTPUT;
 					node->instruction->count ++;
 				
-				}while((c = fgetc(stream)) == BF_TOKEN_MEM_ITEM_OUTPUT);
-				ungetc(c, stream);
+					//fprintf(stderr, "build ast from `%c`\n", node->instruction->token);
+				}while((c = bf_ast_getc_4_source(stream, tokens)) == BF_TOKEN_MEM_ITEM_OUTPUT);
+				bf_ast_ungetc_2_source(c, stream, tokens);
 				break;
 			case BF_TOKEN_MEM_ITEM_INPUT:
 				do{
@@ -169,15 +177,17 @@ static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
 						BF_TOKEN_MEM_ITEM_INPUT;
 					node->instruction->count ++;
 				
-				}while((c = fgetc(stream)) == BF_TOKEN_MEM_ITEM_INPUT);
-				ungetc(c, stream);
+					//fprintf(stderr, "build ast from `%c`\n", node->instruction->token);
+				}while((c = bf_ast_getc_4_source(stream, tokens)) == BF_TOKEN_MEM_ITEM_INPUT);
+				bf_ast_ungetc_2_source(c, stream, tokens);
 				break;
 			case BF_TOKEN_CTL_LOOP_START:
 				node->instruction->token = 
 					BF_TOKEN_CTL_LOOP_START;
 				node->instruction->count = 1;
+				//fprintf(stderr, "build ast from `%c`\n", node->instruction->token);
 				//< build loop branch
-				node->loop = bf_ast_init_4_stream(stream);
+				node->loop = bf_ast_init_4_source(stream, tokens);
 				break;
 			case BF_TOKEN_CTL_LOOP_END:
 				//< a ast node with invalid instruction
@@ -185,6 +195,7 @@ static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
 				node->instruction->token = 
 					BF_TOKEN_CTL_LOOP_END;
 				node->instruction->count = 1;
+				//fprintf(stderr, "build ast from `%c`\n", node->instruction->token);
 				//node->next = NULL; default
 				//node->loop = NULL;
 				return root;
@@ -202,6 +213,29 @@ static bf_ast_node_t * bf_ast_init_4_stream(FILE * stream){
 	return root;
 }
 
+/*! \brief return pointer to tail node of AST
+ *  \param root node of AST
+ *  \retval pointer to tail node of AST
+ * */
+/*static*/ bf_ast_node_t * bf_ast_tail(bf_ast_node_t * root){
+	//assert(NULL != root);
+	if(NULL == root)
+		return NULL;
+
+	if(NULL != root->loop){
+		return bf_ast_tail(root->loop);
+	}else{
+		fputc(root->instruction->token, stderr);
+		return root;
+	}
+	if(NULL != root->next){
+		return bf_ast_tail(root->next);
+	}else{
+		fputc(root->instruction->token, stderr);
+		return root;
+	}
+}
+
 
 void bf_ast_init_4_script(bf_ast_t * ast, const char * script){
 	assert(NULL != ast && NULL != script);
@@ -212,10 +246,24 @@ void bf_ast_init_4_script(bf_ast_t * ast, const char * script){
 	assert(NULL != stream);
 
 	if(NULL != stream){
-		ast->root = bf_ast_init_4_stream(stream);
+		ast->root = bf_ast_init_4_source(stream, NULL);
 		fclose(stream);
 	}
 }
+
+void bf_ast_init_4_string(bf_ast_t * ast, const char * source){
+	assert(NULL != ast && NULL != source);
+	if(NULL == ast || NULL == source)
+		return ;
+
+	bf_tokens_t * tokens = bf_ast_tokens_new(source);
+
+	if(NULL != tokens){
+		ast->root = bf_ast_init_4_source(NULL, tokens);
+		bf_ast_tokens_release(tokens);
+	}
+}
+
 
 /*! \brief create a context of brainfuck interpreter runtime
  *  \param mem_size size of brianfuck interpreter 
@@ -248,7 +296,7 @@ void bf_context_release(bf_context_t * context){
 	free(context);
 }
 
-static int _bf_ast_dfs(bf_ast_node_t * root, int loop_depth){
+static int _bf_ast_dfs_pre(bf_ast_node_t * root, int loop_depth){
 	if(NULL == root){
 		return loop_depth;
 	}
@@ -262,16 +310,16 @@ static int _bf_ast_dfs(bf_ast_node_t * root, int loop_depth){
 		loop_depth--;
 
 	if(NULL != root->loop)
-		loop_depth = _bf_ast_dfs(root->loop, loop_depth+1);
-	return _bf_ast_dfs(root->next, loop_depth);
+		loop_depth = _bf_ast_dfs_pre(root->loop, loop_depth+1);
+	return _bf_ast_dfs_pre(root->next, loop_depth);
 }
 
-int bf_ast_dfs(bf_ast_t * ast){
+int bf_ast_dfs_pre(bf_ast_t * ast){
 	assert(NULL != ast);
 	if(NULL == ast)
 		return 0;
 
-	return _bf_ast_dfs(ast->root, 0);
+	return _bf_ast_dfs_pre(ast->root, 0);
 }
 
 /*! \brief execute brainfuck AST by variant pre-order traversal in specify context

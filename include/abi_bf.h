@@ -92,13 +92,17 @@ bf_ast_t * bf_ast_new(bf_ast_instruction_interpreter_t interpreter);
  * */
 void bf_ast_release(bf_ast_t * ast);
 
-/*! \brief add node to a brainfuck AST by token
- *  \param ast instance of brainfuck AST
- *  \param token token of brainfuck instruction
- *  \retval depth of loop
+/*! \brief traversal AST by pre-order
+ *  \param ast instance of AST
+ *  \param final loop depth
  * */
-//void bf_ast_node_add(bf_ast_t * ast, char token);
-int bf_ast_dfs(bf_ast_t * ast);
+int bf_ast_dfs_pre(bf_ast_t * ast);
+
+/*! \brief check is a AST can be execute
+ *  \param ast instance of AST
+ *  \retval bool, true for executable , false for not
+ * */
+#define bf_ast_executable(ast) ((NULL == ast) ? (0) : (0 == bf_ast_dfs_pre(ast)))
 
 /*! \brief initialize brainfuck AST from script file
  *  \param ast brainfuck AST instance
@@ -106,7 +110,17 @@ int bf_ast_dfs(bf_ast_t * ast);
  *  \param root of AST 
  * */
 void bf_ast_init_4_script(bf_ast_t * ast, const char * script);
+
+/*! \brief initialize brainfuck AST from instruction tokens sting
+ *  \parma ast brainfuck AST instance
+ *  \param source source code sting of brainfuck
+ * */
+void bf_ast_init_4_string(bf_ast_t * ast, const char * source);
+
 //bf_ast_node_t * bf_ast_init_4_stream(FILE * stream);
+//
+//
+/*static*/ bf_ast_node_t * bf_ast_tail(bf_ast_node_t * root);
 
 /*! \brief create a context of brainfuck interpreter runtime
  *  \param mem_size size of brianfuck interpreter 
