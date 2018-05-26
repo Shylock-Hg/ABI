@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 ///! \defgroup bf_ast_tokens_prototype
 /// @{
@@ -58,6 +59,17 @@ void bf_ast_tokens_release(bf_tokens_t * tokens){
 
 	free(tokens->tokens);
 	free(tokens);
+}
+
+bool bf_ast_tokens_is_available(bf_tokens_t * tokens){
+	assert(NULL != tokens);
+	if(NULL == tokens)
+		return false;
+
+	if('\0' == tokens->tokens[tokens->index])
+		return false;
+	else
+		return true;
 }
 
 /*! \brief get token from source

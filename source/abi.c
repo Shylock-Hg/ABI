@@ -58,39 +58,51 @@ int main(int argc, char * argv[]){
 
 		bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
 		bf_ast_init_4_script(ast, file);
-		//bf_ast_dfs_pre(ast);
+		bf_ast_dfs_pre(ast);
 
 		bf_context_t * context = bf_context_new(ABI_MEM_SIZE);
 
+		//bf_ast_node_t * tail = bf_ast_tail(ast->root);
 		/*
-		bf_ast_node_t * tail = bf_ast_tail(ast->root);
 		if(NULL != tail)
 			fprintf(stderr, "tail->ins->token == `%c`\n", 
 					tail->instruction->token);
 		*/
 		
+		/*
 		if(bf_ast_executable(ast))
 			bf_execute(context, ast);
+		*/
 
 		bf_context_release(context);
 		bf_ast_release(ast);
 	}else if(MODE_INTERACTIVE == mode){
 
 		char buf[MAX_LINE_BUF] = {0};
-		printf(">>>");
-		fgets(buf, sizeof(buf), stdin);
-
+		
 		bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
-		bf_ast_init_4_string(ast, buf);
-		bf_ast_dfs_pre(ast);
-
 		bf_context_t * context = bf_context_new(ABI_MEM_SIZE);
 
-		if(bf_ast_executable(ast))
-			bf_execute(context, ast);
+		while(1){
+			printf(">>>");
+			fgets(buf, sizeof(buf), stdin);
 
-		bf_context_release(context);
-		bf_ast_release(ast);
+			bf_ast_init_4_string(ast, buf);
+
+			//bf_ast_dfs_pre(ast);
+			//fputc('\n', stderr);
+
+			if(bf_ast_executable(ast)){
+				bf_execute(context, ast);
+
+				bf_context_release(context);
+				bf_ast_release(ast);
+				
+				context = bf_context_new(ABI_MEM_SIZE);
+				ast = bf_ast_new(bf_instruction_interpreter);
+
+			}
+		}
 	}else{
 		fprintf(stderr,"Unkown mode!\n");
 		abort();
@@ -105,25 +117,4 @@ int main(int argc, char * argv[]){
 	//printf("ok!\n");
 	return 0;
 }
-
-/* ******************** brainfuck interpreter ******************** */
-
-
-/*  \brief append a byte to buffer
- *  \param buf buffer to append
- *  \param max max size of buffer
- *  \param byte byte appended to buffer
- *  \retval 0 for ok,-1 for fail
- * */
-/*
-   static void append(struct buffer buf, size_t max, uint8_t byte){
-   if(buf.len_valid < max){  //!< buf.buf[max_length] == '\0'
-   buf.buf[buf.len_valid] = byte;
-   buf.len_valid++;
-   }else{
-   fprintf(stderr,"Out of buffer in `%s`.\n",__FUNCTION__);
-   abort();
-   }
-   }
-   */
 

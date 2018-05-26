@@ -12,6 +12,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdbool.h>
 
 ///! \defgroup bf_ast_tokens_prototype
 /// @{
@@ -36,6 +37,12 @@ bf_tokens_t * bf_ast_tokens_new(const char * source);
  * */
 void bf_ast_tokens_release(bf_tokens_t * tokens);
 
+/*! \brief check the tokens is available
+ *  \param tokens tokens of brainfuck source code
+ *  \retval true for available , false for not
+ * */
+bool bf_ast_tokens_is_available(bf_tokens_t * tokens);
+
 /*! \brief get token from source
  *  \param stream stdio.h steam
  *  \param tokens tokens of source code
@@ -52,6 +59,7 @@ int bf_ast_getc_4_source(FILE * stream, bf_tokens_t * tokens);
  *  \note either stream or tokens must be NULL
  * */
 int bf_ast_ungetc_2_source(char c, FILE * stream, bf_tokens_t * tokens);
+
 
 /// @}
 
