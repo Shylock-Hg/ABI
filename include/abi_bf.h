@@ -96,7 +96,7 @@ void bf_ast_release(bf_ast_t * ast);
  *  \param ast instance of AST
  *  \param final loop depth
  * */
-int bf_ast_dfs_pre(bf_ast_t * ast);
+void bf_ast_dfs_pre(bf_ast_t * ast);
 
 /*! \brief get loop depth of AST
  *  \param ast instance of AST

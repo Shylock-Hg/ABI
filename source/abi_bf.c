@@ -235,47 +235,17 @@ static bf_ast_node_t * bf_ast_init_4_source(FILE * stream, bf_tokens_t * tokens)
 	if(NULL == root)
 		return NULL;
 
-/*
-	fprintf(stderr, "pre : root->instruction->token == `%c`\n", 
-			root->instruction->token);
-*/
+	bf_ast_node_t * loop = bf_ast_tail(root->loop);
+	bf_ast_node_t * next = bf_ast_tail(root->next);
 
-//	if(NULL != root->loop){
-		bf_ast_node_t * loop = bf_ast_tail(root->loop);
-//	}
-	/*
-	else{
-		fputc(root->instruction->token, stderr);
-		return root;
-	}
-	*/
-//	if(NULL != root->next){
-		bf_ast_node_t * next = bf_ast_tail(root->next);
-//	}
-	/*
-	else{
-		fputc(root->instruction->token, stderr);
-		return root;
-	}
-	*/
-
-//	fprintf(stderr, "root->instruction->token == `%c`\n", 
-//			root->instruction->token);
-//
 	if(NULL != next){
-		//fprintf(stderr, "next->instruction->token == `%c`\n", 
-				//next->instruction->token);
 		return next;
 	}
 
 	if(NULL != loop){
-		//fprintf(stderr, "loop->instruction->token == `%c`\n", 
-				//loop->instruction->token);
 		return loop;
 	}
 
-	//fprintf(stderr, "root->instruction->token == `%c`\n", 
-			//root->instruction->token);
 	return root;
 }
 
@@ -306,13 +276,19 @@ void bf_ast_init_4_string(bf_ast_t * ast, const char * source){
 			ast->root = bf_ast_init_4_source(NULL, tokens);
 			while(bf_ast_tokens_is_available(tokens)){
 				bf_ast_node_t * tail = bf_ast_tail(ast->root);
-				tail->next = bf_ast_init_4_source(NULL, tokens);
+				if(BF_TOKEN_CTL_LOOP_START == tail->instruction->token)
+					tail->loop = bf_ast_init_4_source(NULL, tokens);
+				else
+					tail->next = bf_ast_init_4_source(NULL, tokens);
 			}
 		}
 		else {
 			while(bf_ast_tokens_is_available(tokens)){
 				bf_ast_node_t * tail = bf_ast_tail(ast->root);
-				tail->next = bf_ast_init_4_source(NULL, tokens);
+				if(BF_TOKEN_CTL_LOOP_START == tail->instruction->token)
+					tail->loop = bf_ast_init_4_source(NULL, tokens);
+				else 
+					tail->next = bf_ast_init_4_source(NULL, tokens);
 			}
 		}
 		bf_ast_tokens_release(tokens);
@@ -351,9 +327,9 @@ void bf_context_release(bf_context_t * context){
 	free(context);
 }
 
-static int _bf_ast_dfs_pre(bf_ast_node_t * root, int loop_depth){
+static void _bf_ast_dfs_pre(bf_ast_node_t * root){
 	if(NULL == root){
-		return loop_depth;
+		return ;
 	}
 
 	//fprintf(stderr, "token-`%c`, count-`%d`.\n", root->instruction->token,
@@ -364,20 +340,18 @@ static int _bf_ast_dfs_pre(bf_ast_node_t * root, int loop_depth){
 	if('x' == root->instruction->token)
 		fputc(root->instruction->token, stderr);
 
-	if(BF_TOKEN_CTL_LOOP_END == root->instruction->token)
-		loop_depth--;
+	_bf_ast_dfs_pre(root->loop);
 
-	if(NULL != root->loop)
-		loop_depth = _bf_ast_dfs_pre(root->loop, loop_depth+1);
-	return _bf_ast_dfs_pre(root->next, loop_depth);
+	_bf_ast_dfs_pre(root->next);
 }
 
-int bf_ast_dfs_pre(bf_ast_t * ast){
+void bf_ast_dfs_pre(bf_ast_t * ast){
 	assert(NULL != ast);
 	if(NULL == ast)
-		return 0;
+		return ;
 
-	return _bf_ast_dfs_pre(ast->root, 0);
+	_bf_ast_dfs_pre(ast->root);
+	fputc('\n', stderr);
 }
 
 static int _bf_ast_loop_depth(bf_ast_node_t * root, int loop_depth){
@@ -388,14 +362,21 @@ static int _bf_ast_loop_depth(bf_ast_node_t * root, int loop_depth){
 	if(BF_TOKEN_CTL_LOOP_END == root->instruction->token)
 		loop_depth--;
 
+	if(BF_TOKEN_CTL_LOOP_START == root->instruction->token)
+		loop_depth++;
+
 	if(NULL != root->loop)
-		loop_depth = _bf_ast_dfs_pre(root->loop, loop_depth+1);
-	return _bf_ast_dfs_pre(root->next, loop_depth);
+		loop_depth = _bf_ast_loop_depth(root->loop, loop_depth);
+	return _bf_ast_loop_depth(root->next, loop_depth);
 }
 
 int bf_ast_loop_depth(bf_ast_t * ast){
 	assert(NULL != ast);
 	if(NULL == ast)
+		return -1;
+
+	assert(NULL != ast->root);
+	if(NULL == ast->root)
 		return -1;
 
 	return _bf_ast_loop_depth(ast->root, 0);

@@ -58,7 +58,8 @@ int main(int argc, char * argv[]){
 
 		bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
 		bf_ast_init_4_script(ast, file);
-		bf_ast_dfs_pre(ast);
+
+		//bf_ast_dfs_pre(ast);
 
 		bf_context_t * context = bf_context_new(ABI_MEM_SIZE);
 
@@ -90,7 +91,6 @@ int main(int argc, char * argv[]){
 			//fprintf(stderr, "loop-depth == `%d`\n", bf_ast_loop_depth(ast));
 
 			//bf_ast_dfs_pre(ast);
-			//fputc('\n', stderr);
 
 			if(bf_ast_executable(ast)){
 				bf_execute(context, ast);
