@@ -380,6 +380,27 @@ int bf_ast_dfs_pre(bf_ast_t * ast){
 	return _bf_ast_dfs_pre(ast->root, 0);
 }
 
+static int _bf_ast_loop_depth(bf_ast_node_t * root, int loop_depth){
+	if(NULL == root){
+		return loop_depth;
+	}
+
+	if(BF_TOKEN_CTL_LOOP_END == root->instruction->token)
+		loop_depth--;
+
+	if(NULL != root->loop)
+		loop_depth = _bf_ast_dfs_pre(root->loop, loop_depth+1);
+	return _bf_ast_dfs_pre(root->next, loop_depth);
+}
+
+int bf_ast_loop_depth(bf_ast_t * ast){
+	assert(NULL != ast);
+	if(NULL == ast)
+		return -1;
+
+	return _bf_ast_loop_depth(ast->root, 0);
+}
+
 /*! \brief execute brainfuck AST by variant pre-order traversal in specify context
  *  \param context current runtime context 
  *  \param ast brainfuck AST to execute

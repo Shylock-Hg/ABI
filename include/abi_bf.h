@@ -98,11 +98,17 @@ void bf_ast_release(bf_ast_t * ast);
  * */
 int bf_ast_dfs_pre(bf_ast_t * ast);
 
+/*! \brief get loop depth of AST
+ *  \param ast instance of AST
+ *  \retval -1 for NULL AST, other for loop depth
+ * */
+int bf_ast_loop_depth(bf_ast_t * ast);
+
 /*! \brief check is a AST can be execute
  *  \param ast instance of AST
  *  \retval bool, true for executable , false for not
  * */
-#define bf_ast_executable(ast) ((NULL == ast) ? (0) : (0 == bf_ast_dfs_pre(ast)))
+#define bf_ast_executable(ast) ((NULL == ast) ? (0) : (0 == bf_ast_loop_depth(ast)))
 
 /*! \brief initialize brainfuck AST from script file
  *  \param ast brainfuck AST instance

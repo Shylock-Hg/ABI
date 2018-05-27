@@ -69,10 +69,8 @@ int main(int argc, char * argv[]){
 					tail->instruction->token);
 		*/
 		
-		/*
 		if(bf_ast_executable(ast))
 			bf_execute(context, ast);
-		*/
 
 		bf_context_release(context);
 		bf_ast_release(ast);
@@ -88,6 +86,8 @@ int main(int argc, char * argv[]){
 			fgets(buf, sizeof(buf), stdin);
 
 			bf_ast_init_4_string(ast, buf);
+
+			//fprintf(stderr, "loop-depth == `%d`\n", bf_ast_loop_depth(ast));
 
 			//bf_ast_dfs_pre(ast);
 			//fputc('\n', stderr);
