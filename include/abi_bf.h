@@ -19,6 +19,7 @@
 #define BF_TOKEN_CTL_LOOP_START  '['
 #define BF_TOKEN_CTL_LOOP_END    ']'
 
+#define BF_TOKEN_PLACEHOLDER     'x'
 
 /*! \brief brainfuck instruction
  *

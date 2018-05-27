@@ -118,7 +118,7 @@ static bf_ast_node_t * bf_ast_init_4_source(FILE * stream, bf_tokens_t * tokens)
 		return NULL;
 
 	char c = 0;
-	bf_ast_node_t * root = bf_ast_node_new(bf_instruction_new('x', 0));
+	bf_ast_node_t * root = bf_ast_node_new(bf_instruction_new(BF_TOKEN_PLACEHOLDER, 0));
 	bf_ast_node_t * node = root;
 	bf_ast_node_t * pre  = NULL;
 
@@ -209,13 +209,13 @@ static bf_ast_node_t * bf_ast_init_4_source(FILE * stream, bf_tokens_t * tokens)
 		}  //!< end of switch(token)
 
 		//< initialize and scroll to new node
-		node->next = bf_ast_node_new(bf_instruction_new('x', 0));
+		node->next = bf_ast_node_new(bf_instruction_new(BF_TOKEN_PLACEHOLDER, 0));
 		pre = node;
 		node = node->next;
 
 	}  //!< end of while(! EOF)
 
-	if('x' == node->instruction->token){
+	if(BF_TOKEN_PLACEHOLDER == node->instruction->token){
 		bf_ast_node_release(node);
 		if(NULL != pre)
 			pre->next = NULL;
@@ -337,7 +337,7 @@ static void _bf_ast_dfs_pre(bf_ast_node_t * root){
 	for(int i=0; i<root->instruction->count; i++)
 		fputc(root->instruction->token, stderr);
 
-	if('x' == root->instruction->token)
+	if(BF_TOKEN_PLACEHOLDER == root->instruction->token)
 		fputc(root->instruction->token, stderr);
 
 	_bf_ast_dfs_pre(root->loop);

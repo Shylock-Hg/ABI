@@ -95,12 +95,8 @@ int main(int argc, char * argv[]){
 			if(bf_ast_executable(ast)){
 				bf_execute(context, ast);
 
-				bf_context_release(context);
 				bf_ast_release(ast);
-				
-				context = bf_context_new(ABI_MEM_SIZE);
 				ast = bf_ast_new(bf_instruction_interpreter);
-
 			}
 		}
 	}else{
