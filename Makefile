@@ -1,4 +1,7 @@
 CFLAGS = -std=c99 -Wall -g
+INSTALL = install
+
+prefix = /usr/local
 
 DIR_BUILD = ./build
 DIR_SOURCE = ./source
@@ -9,7 +12,7 @@ SOURCES = $(wildcard source/*.c)
 
 OBJS = $(addprefix $(DIR_BUILD)/, $(patsubst %.c, %.o, $(notdir $(SOURCES))))
 
-TARGET = test
+TARGET = abi
 
 DEPFILES = $(patsubst %.o, %.d, $(OBJS))
 
@@ -36,6 +39,13 @@ $(DIR_BUILD) :
 #clean outputs
 clean : 
 	rm -rf $(DIR_BUILD)
+
+install : $(DIR_BUILD)/$(TARGET)
+	$(INSTALL) -d "${prefix}/bin"
+	$(INSTALL) $(DIR_BUILD)/$(TARGET) $(prefix)/bin
+
+uninstall :
+	rm -f $(prefix)/bin/$(TARGET)
 
 -include $(DEPFILES)
 
