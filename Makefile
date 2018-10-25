@@ -1,4 +1,4 @@
-CFLAGS = -std=c99 -Wall -g
+CFLAGS = -std=c99 -Wall -g -coverage
 
 DIR_BUILD = ./build
 DIR_SOURCE = ./source
