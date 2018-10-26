@@ -1,4 +1,4 @@
-CFLAGS = -std=c99 -Wall -g
+CFLAGS = -std=c99 -Wall -g -coverage
 INSTALL = install
 
 prefix = /usr/local
@@ -24,10 +24,10 @@ DEPFILES = $(patsubst %.o, %.d, $(OBJS))
 all : $(DIR_BUILD)/$(TARGET)
 
 $(DIR_BUILD)/$(TARGET) : $(OBJS) $(DIR_BUILD)
-	cc $(CFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS)
 
 $(DIR_BUILD)/%.o : $(DIR_SOURCE)/%.c $(DIR_BUILD)/%.d $(DIR_BUILD)
-	cc $(PPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(PPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(DIR_BUILD)/%.d : ;
 .PRECIOUS : $(DIR_BUILD)/%.d
