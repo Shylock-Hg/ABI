@@ -1,5 +1,6 @@
 # ABI
 [![Build Status](https://travis-ci.com/Shylock-Hg/ABI.svg?branch=master)](https://travis-ci.com/Shylock-Hg/ABI)
+[![codecov](https://codecov.io/gh/Shylock-Hg/ABI/branch/master/graph/badge.svg)](https://codecov.io/gh/Shylock-Hg/ABI)
 [![CodeFactor](https://www.codefactor.io/repository/github/shylock-hg/abi/badge)](https://www.codefactor.io/repository/github/shylock-hg/abi)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
