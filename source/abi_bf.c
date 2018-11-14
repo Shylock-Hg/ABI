@@ -434,15 +434,11 @@ void bf_instruction_interpreter(bf_context_t * context, bf_instruction_t * instr
 		case BF_TOKEN_MEM_ITEM_INC:
 			if(context->mem_index < context->mem_size){
 				context->mem_ptr[context->mem_index] += instruction->count;
-			}else{
-				
 			}
 			break;
 		case BF_TOKEN_MEM_ITEM_DEC:
 			if(context->mem_index < context->mem_size){
 				context->mem_ptr[context->mem_index] -= instruction->count;
-			}else{
-				
 			}
 			break;
 		case BF_TOKEN_MEM_PTR_INC:
