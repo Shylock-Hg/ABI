@@ -434,24 +434,30 @@ void bf_instruction_interpreter(bf_context_t * context, bf_instruction_t * instr
 		case BF_TOKEN_MEM_ITEM_INC:
 			if(context->mem_index < context->mem_size){
 				context->mem_ptr[context->mem_index] += instruction->count;
-			}else{
-				
-			}
+			} else {
+                                fprintf(stderr, "Error:Invalid memory access!\n");
+                        }
 			break;
 		case BF_TOKEN_MEM_ITEM_DEC:
 			if(context->mem_index < context->mem_size){
 				context->mem_ptr[context->mem_index] -= instruction->count;
-			}else{
-				
-			}
+			} else {
+                                fprintf(stderr, "Error:Invalid memory access!\n");
+                        }
 			break;
 		case BF_TOKEN_MEM_PTR_INC:
-			if(context->mem_size-1 > (context->mem_index + instruction->count))
+			if(context->mem_size-1 > (context->mem_index + instruction->count)) {
 				context->mem_index += instruction->count;
+                        } else {
+                                fprintf(stderr, "Error:Invalid memory access!\n");
+                        }
 			break;
 		case BF_TOKEN_MEM_PTR_DEC:
-			if(0 < (context->mem_index - instruction->count))
+			if(0 < (context->mem_index - instruction->count)) {
 				context->mem_index -= instruction->count;
+                        } else {
+                                fprintf(stderr, "Error:Invalid memory access!\n");
+                        }
 			break;
 		case BF_TOKEN_MEM_ITEM_OUTPUT:
 			for(int i=0; i<instruction->count; i++){
