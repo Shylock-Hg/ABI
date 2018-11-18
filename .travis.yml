@@ -122,6 +122,7 @@ before_install:
 
 script :
     - abi -f examples/ascii.bf
+    - abi -f examples/hello.bf
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
