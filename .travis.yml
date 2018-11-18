@@ -118,11 +118,10 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
-    - make && sudo make install
 
 script :
-    - abi -f examples/ascii.bf
-    - abi -f examples/hello.bf
+    - make && sudo make install
+    - make test
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
