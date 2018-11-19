@@ -20,7 +20,7 @@ DEPFILES = $(patsubst %.o, %.d, $(OBJS))
 #vpath %.h ../../inc/core
 #vpath %.h ../../inc/toolkit
 
-.PHONY : all clean
+.PHONY : all clean install uninstall test
 all : $(DIR_BUILD)/$(TARGET)
 
 $(DIR_BUILD)/$(TARGET) : $(OBJS) $(DIR_BUILD)
@@ -47,5 +47,8 @@ install : $(DIR_BUILD)/$(TARGET)
 uninstall :
 	rm -f $(prefix)/bin/$(TARGET)
 
--include $(DEPFILES)
+test : $(prefix)/bin/$(TARGET)
+	$(TARGET) -f examples/hello.bf
+	$(TARGET) -f examples/ascii.bf
 
+-include $(DEPFILES)
