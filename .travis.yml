@@ -146,9 +146,9 @@ matrix:
           sources:
             - llvm-toolchain-trusty-7
           packages:
-            - clang-7.0
+            - clang-7
       env:
-        - MATRIX_EVAL="CC=clang-7.0 && CXX=clang++-7.0"
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
 
 before_install:
     - eval "${MATRIX_EVAL}"
