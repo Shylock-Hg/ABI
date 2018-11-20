@@ -155,8 +155,11 @@ before_install:
     - eval "${MATRIX_EVAL}"
 
 script :
-    - make && sudo make install
+    - make -j8
+    - sudo make install
     - make test
+    - sudo make uninstall
+    - make clean
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
