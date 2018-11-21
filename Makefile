@@ -1,54 +1,82 @@
-CFLAGS = -std=c99 -Wall -g -coverage
+#CC = gcc
+LN = ln
 INSTALL = install
-
-prefix = /usr/local
-
-DIR_BUILD = ./build
-DIR_SOURCE = ./source
+RM = rm
+MKDIR = mkdir
 
 PPFLAGS = -MT $@ -MMD -MP -MF $(DIR_BUILD)/$*.d
 
-SOURCES = $(wildcard source/*.c)
+CFLAGS_LOCAL = -Wall -g -std=gnu99 -coverage
+CFLAGS_LOCAL += $(CFLAGS)
 
-OBJS = $(addprefix $(DIR_BUILD)/, $(patsubst %.c, %.o, $(notdir $(SOURCES))))
+prefix = /usr/local
 
-TARGET = abi
+DIR_BUILD = .build
 
-DEPFILES = $(patsubst %.o, %.d, $(OBJS))
+APP_SOURCE = abi.c
+APP_OBJECT = abi.o
 
-# core header
-#vpath %.h ../../inc/core
-#vpath %.h ../../inc/toolkit
+LIB_SOURCES = source/abi_bf.c \
+        source/abi_tokens.c
+LIB_OBJECTS = $(patsubst %.c, %.o, $(notdir $(LIB_SOURCES)))
+LIBVERSION = 0.0.1
+LIBNAME = abi
+LIB_SO_ABI = lib$(LIBNAME).so.$(LIBVERSION)
+
+APP = abi
+
+DEPFILES = $(patsubst %.o, %.d, $(addprefix $(DIR_BUILD)/, $(LIB_OBJECTS)) $(DIR_BUILD)/$(APP_OBJECT))
+
+# set c sources search path
+vpath %.c $(sort $(dir $(LIB_SOURCES)))
 
 .PHONY : all clean install uninstall test
-all : $(DIR_BUILD)/$(TARGET)
+all : $(DIR_BUILD) $(DIR_BUILD)/$(APP)
 
-$(DIR_BUILD)/$(TARGET) : $(OBJS) $(DIR_BUILD)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+$(DIR_BUILD)/$(APP) : $(DIR_BUILD)/$(APP_OBJECT) $(DIR_BUILD)/$(LIB_SO_ABI) | Makefile
+	$(CC) $(CFLAGS_LOCAL) -o $@ $< -L$(shell pwd)/$(DIR_BUILD) -l$(LIBNAME)
 
-$(DIR_BUILD)/%.o : $(DIR_SOURCE)/%.c $(DIR_BUILD)/%.d $(DIR_BUILD)
-	$(CC) $(PPFLAGS) $(CFLAGS) -c $< -o $@
+$(DIR_BUILD)/$(APP_OBJECT) : $(APP_SOURCE) | Makefile 
+	$(CC) -MT $@ -MMD -MP -MF $*.d $(CFLAGS_LOCAL) -c $< -o $@
+
+$(DIR_BUILD)/$(LIB_SO_ABI) : $(addprefix $(DIR_BUILD)/, $(LIB_OBJECTS)) | Makefile
+	$(CC) $(CFLAGS_LOCAL) -shared -o $@ $(addprefix $(DIR_BUILD)/, $(LIB_OBJECTS))
+	$(LN) -sf $(shell pwd)/$(DIR_BUILD)/$(LIB_SO_ABI) $(DIR_BUILD)/lib$(LIBNAME).so
+
+$(DIR_BUILD)/%.o : %.c | Makefile
+	$(CC) $(PPFLAGS) $(CFLAGS_LOCAL) -fPIC -c $< -o $@
+
+#$(OBJECTS): $(DIR_BUILD)/%.o: %.c
+	#$(MKDIR) -p $(@D)
+	#$(CC) $(PPFLAGS) $(CFLAGS_LOCAL) -c $< -o $@
 
 $(DIR_BUILD)/%.d : ;
 .PRECIOUS : $(DIR_BUILD)/%.d
 
-#create build directory
 $(DIR_BUILD) : 
-	mkdir -p $(DIR_BUILD)
+	$(MKDIR) -p $(DIR_BUILD)
 
-#clean outputs
+install : all
+	$(INSTALL) -d "$(prefix)/lib"
+	$(INSTALL) "$(DIR_BUILD)/$(LIB_SO_ABI)" "$(prefix)/lib"
+	$(LN) -sf "$(prefix)/lib/$(LIB_SO_ABI)" "$(prefix)/lib/lib$(LIBNAME).so"
+	$(INSTALL) -d "$(prefix)/bin"
+	$(INSTALL) "$(DIR_BUILD)/$(APP)" "$(prefix)/bin"
+
+uninstall : 
+	$(RM) -f "$(prefix)/lib/$(LIB_SO_ABI)"
+	$(RM) -f "$(prefix)/lib/lib$(LIBNAME).so"
+	$(RM) -f "$(prefix)/bin/$(APP)"
+
+test :
+	echo 0 | $(APP) -f examples/196.bf
+	echo 9 | $(APP) -f examples/196.bf
+	echo 'hello world' | $(APP) -f examples/echo.bf
+	$(APP) -f examples/ascii.bf
+	$(APP) -f examples/hello.bf
+	$(APP) -f examples/test.bf
+
 clean : 
-	rm -rf $(DIR_BUILD)
+	$(RM) -rf $(DIR_BUILD)
 
-install : $(DIR_BUILD)/$(TARGET)
-	$(INSTALL) -d "${prefix}/bin"
-	$(INSTALL) $(DIR_BUILD)/$(TARGET) $(prefix)/bin
-
-uninstall :
-	rm -f $(prefix)/bin/$(TARGET)
-
-test : $(prefix)/bin/$(TARGET)
-	$(TARGET) -f examples/hello.bf
-	$(TARGET) -f examples/ascii.bf
-
--include $(DEPFILES)
+include $(DEPFILES)
