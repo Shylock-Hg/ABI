@@ -52,6 +52,6 @@ Mkfile.old
 dkms.conf
 
 #shylock
-**/build
+.build
 tags
 log

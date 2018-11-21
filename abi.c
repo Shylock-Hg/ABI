@@ -4,8 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "../include/abi_bf.h"
-//#include "../include/abi_cmt.h"
+#include "include/abi_bf.h"
 
 
 //!< command line parameter
