@@ -69,12 +69,12 @@ uninstall :
 	$(RM) -f "$(prefix)/bin/$(APP)"
 
 test :
-	echo 0 | $(APP) -f examples/196.bf
-	echo 9 | $(APP) -f examples/196.bf
-	echo 'hello world' | $(APP) -f examples/echo.bf
-	$(APP) -f examples/ascii.bf
-	$(APP) -f examples/hello.bf
-	$(APP) -f examples/test.bf
+	@valgrind --leak-check=full --show-leak-kinds=all echo 0 | $(APP) -f examples/196.bf
+	@valgrind --leak-check=full --show-leak-kinds=all echo 9 | $(APP) -f examples/196.bf
+	@valgrind --leak-check=full --show-leak-kinds=all echo 'hello world' | $(APP) -f examples/echo.bf
+	@valgrind --leak-check=full --show-leak-kinds=all $(APP) -f examples/ascii.bf
+	@valgrind --leak-check=full --show-leak-kinds=all $(APP) -f examples/hello.bf
+	@valgrind --leak-check=full --show-leak-kinds=all $(APP) -f examples/test.bf
 
 clean : 
 	$(RM) -rf $(DIR_BUILD)
