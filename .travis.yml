@@ -153,6 +153,7 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
+    - sudo apt-get install valgrind
 
 script :
     - make -j8
