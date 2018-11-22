@@ -2,6 +2,7 @@
 #define _ABI_BF_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 /*! \brief implement brainfuck interpreter by binary AST
  * */
@@ -25,33 +26,36 @@
  *
  * */
 typedef struct bf_instruction {
-	int count;  //!< count of current instruction	
-	char token;  //!< type of instruction
+        int count;  //!< count of current instruction
+        char token;  //!< type of instruction
 } bf_instruction_t;
 
 /*! \brief brainfuck AST node
  * */
 typedef struct bf_ast_node {
-	bf_instruction_t * instruction;  //!< instruction of current AST node
-	struct bf_ast_node * loop;  //!< loop child
-	struct bf_ast_node * next;  //!< normal child
+        bf_instruction_t * instruction;  //!< instruction of current AST node
+        struct bf_ast_node * loop;  //!< loop child
+        struct bf_ast_node * next;  //!< normal child
 } bf_ast_node_t;
 
 /*! \brief brainfuck runtime context
  *
  * */
 typedef struct bf_context {
-	uint8_t * mem_ptr;  //!< pointer to memory start
-	size_t    mem_size;  //!< size of memory
-	size_t    mem_index;  //!< index of current memory
+        uint8_t * mem_ptr;  //!< pointer to memory start
+        size_t    mem_size;  //!< size of memory
+        size_t    mem_index;  //!< index of current memory
 } bf_context_t;
 
-typedef void (*bf_ast_instruction_interpreter_t)(bf_context_t * context, bf_instruction_t * instruction);
+typedef void (*bf_ast_instruction_interpreter_t)(bf_context_t * context,
+        bf_instruction_t * instruction);
 
 /*! \brief brainfuck AST */
 typedef struct bf_ast {
-	bf_ast_node_t * root;  //!< root of AST 
-	bf_ast_instruction_interpreter_t interpreter;  //!< interpreter for each instruction
+        //!< root of AST
+        bf_ast_node_t * root;
+        //!< interpreter for each instruction
+        bf_ast_instruction_interpreter_t interpreter;
 } bf_ast_t;
 
 
@@ -109,7 +113,8 @@ int bf_ast_loop_depth(bf_ast_t * ast);
  *  \param ast instance of AST
  *  \retval bool, true for executable , false for not
  * */
-#define bf_ast_executable(ast) ((NULL == ast) ? (0) : (0 == bf_ast_loop_depth(ast)))
+#define bf_ast_executable(ast) \
+        ((NULL == ast) ? (0) : (0 == bf_ast_loop_depth(ast)))
 
 /*! \brief initialize brainfuck AST from script file
  *  \param ast brainfuck AST instance
@@ -124,7 +129,7 @@ void bf_ast_init_4_script(bf_ast_t * ast, const char * script);
  * */
 void bf_ast_init_4_string(bf_ast_t * ast, const char * source);
 
-//bf_ast_node_t * bf_ast_init_4_stream(FILE * stream);
+// bf_ast_node_t * bf_ast_init_4_stream(FILE * stream);
 //
 //
 /*static*/ bf_ast_node_t * bf_ast_tail(bf_ast_node_t * root);
@@ -150,9 +155,9 @@ void bf_execute(bf_context_t * context, bf_ast_t * ast);
  *  \param context context of instruction
  *  \param instruction instruction to interprete
  * */
-void bf_instruction_interpreter(bf_context_t * context, bf_instruction_t * instruction);
+void bf_instruction_interpreter(bf_context_t * context,
+        bf_instruction_t * instruction);
 
 /// @}
 
-#endif
-
+#endif  //!< _ABI_BF_H_

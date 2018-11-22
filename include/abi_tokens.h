@@ -8,7 +8,7 @@
 #define _ABI_TOKENS_H_
 
 #ifdef __cplusplus
-	extern "C" {
+        extern "C" {
 #endif
 
 #include <stdio.h>
@@ -18,8 +18,8 @@
 /// @{
 
 typedef struct {
-	char * tokens;  //!< instruction tokens string
-	size_t index;  //!< index of current token
+        char * tokens;  //!< instruction tokens string
+        size_t index;  //!< index of current token
 } bf_tokens_t;
 /// @}
 
@@ -64,8 +64,7 @@ int bf_ast_ungetc_2_source(char c, FILE * stream, bf_tokens_t * tokens);
 /// @}
 
 #ifdef __cplusplus
-	}
+        }
 #endif
 
 #endif  //!< _ABI_TOKENS_H_
-

@@ -34,7 +34,7 @@ bf_tokens_t * bf_ast_tokens_new(const char * source){
 
 	bf_tokens_t * tokens = malloc(sizeof(bf_tokens_t));
 	assert(NULL != tokens);
-	if(NULL == source)
+	if(NULL == tokens)
 		return NULL;
 
 	tokens->tokens = calloc(sizeof(char), strlen(source)+1);
