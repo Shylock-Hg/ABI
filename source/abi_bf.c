@@ -37,9 +37,12 @@ void bf_instruction_release(bf_instruction_t * instruction){
  *  \retval created brainfuck AST node
  * */
 bf_ast_node_t * bf_ast_node_new(bf_instruction_t * instruction){
+        if (NULL == instruction) {
+                return NULL;
+        }
 	bf_ast_node_t * node = malloc(sizeof(bf_ast_node_t));
 	assert(NULL != instruction && NULL != node);
-	if(NULL == instruction || NULL == node)
+	if(NULL == node)
 		return NULL;
 
 	node->instruction = instruction;
@@ -61,9 +64,13 @@ void bf_ast_node_release(bf_ast_node_t * node){
  *  \retval created brainfuck AST
  * */
 bf_ast_t * bf_ast_new(bf_ast_instruction_interpreter_t interpreter){
+        assert(NULL != interpreter);
+        if (NULL == interpreter) {
+                return NULL;
+        }
 	bf_ast_t * ast = malloc(sizeof(bf_ast_t));
-	assert(NULL != interpreter && NULL != ast);
-	if(NULL == interpreter || NULL ==ast)
+	assert(NULL != ast);
+	if(NULL ==ast)
 		return NULL;
 
 	ast->interpreter = interpreter;
@@ -302,11 +309,16 @@ void bf_ast_init_4_string(bf_ast_t * ast, const char * source){
  * */
 bf_context_t * bf_context_new(size_t mem_size){
 	uint8_t * mem = malloc(mem_size);
+        if (NULL == mem) {
+                return NULL;
+        }
 	memset(mem, 0x00, mem_size);
 	bf_context_t * context = malloc(sizeof(bf_context_t));
 	assert(NULL != mem && NULL != context);
-	if(NULL == mem || NULL == context)
+	if(NULL == context) {
+                free(mem);
 		return NULL;
+        }
 
 	context->mem_ptr = mem;
 	context->mem_size = mem_size;
@@ -460,15 +472,22 @@ void bf_instruction_interpreter(bf_context_t * context, bf_instruction_t * instr
                         }
 			break;
 		case BF_TOKEN_MEM_ITEM_OUTPUT:
-			for(int i=0; i<instruction->count; i++){
-				putchar(context->mem_ptr[context->mem_index]);
-			}
+			if(context->mem_index < context->mem_size){
+                                for(int i=0; i<instruction->count; i++){
+                                        putchar(context->mem_ptr[context->mem_index]);
+                                }
+			} else {
+                                fprintf(stderr, "Error:Invalid memory access!\n");
+                        }
 			break;
 		case BF_TOKEN_MEM_ITEM_INPUT:
-			for(int i=0; i<instruction->count; i++){
-				//printf("Please Input char:");
-				context->mem_ptr[context->mem_index] = getchar();
-			}
+			if(context->mem_index < context->mem_size){
+                                for(int i=0; i<instruction->count; i++){
+                                        context->mem_ptr[context->mem_index] = getchar();
+                                }
+			} else {
+                                fprintf(stderr, "Error:Invalid memory access!\n");
+                        }
 			break;
 		//< only execute non control instruction
 		case BF_TOKEN_CTL_LOOP_START:
@@ -481,5 +500,3 @@ void bf_instruction_interpreter(bf_context_t * context, bf_instruction_t * instr
 }
 
 /// @}
-
-

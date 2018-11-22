@@ -1,8 +1,9 @@
 #include <stdio.h>
-#include <unistd.h>
-#include <getopt.h>
 #include <stdlib.h>
 #include <ctype.h>
+
+#include <unistd.h>
+#include <getopt.h>
 
 #include "include/abi_bf.h"
 
