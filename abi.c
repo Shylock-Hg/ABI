@@ -9,7 +9,7 @@
 
 
 //!< command line parameter
-#define STR_PARAM  "f:"
+#define STR_PARAM  "f:h"
 
 #define ABI_MEM_SIZE 30000
 
@@ -39,6 +39,10 @@ int main(int argc, char * argv[]){
 					abort();
 				}
 				break;
+                        case 'h':
+                                fprintf(stderr, "Usage: abi -f <script>\n"
+                                        "       abi\n");
+                                exit(0);
 			case '?':
 				if(optopt == 'f')
 					fprintf(stderr,"Option -%c requires an argument.\n",optopt);
