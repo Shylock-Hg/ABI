@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define MAX_SOURCE_STRING_LEN 1023  //!< without null terminal
+
 ///! \defgroup bf_ast_tokens_prototype
 /// @{
 

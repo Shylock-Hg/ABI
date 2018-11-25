@@ -11,13 +11,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "../include/abi_tokens.h"
+
 ///! \defgroup bf_ast_tokens_prototype
 /// @{
-
+/*
 typedef struct {
 	char * tokens;  //!< instruction tokens string
 	size_t index;  //!< index of current token
 } bf_tokens_t;
+*/
 /// @}
 
 ///! \defgroup bf_ast_tokens_interface
@@ -28,6 +31,11 @@ typedef struct {
  *  \retval tokens instance
  * */
 bf_tokens_t * bf_ast_tokens_new(const char * source){
+        const size_t len_source = strnlen(source, MAX_SOURCE_STRING_LEN);
+        if (len_source >= MAX_SOURCE_STRING_LEN) {
+                return NULL;
+        }
+
 	assert(NULL != source);
 	if(NULL == source)
 		return NULL;
@@ -37,7 +45,8 @@ bf_tokens_t * bf_ast_tokens_new(const char * source){
 	if(NULL == tokens)
 		return NULL;
 
-	tokens->tokens = calloc(sizeof(char), strlen(source)+1);
+	//tokens->tokens = calloc(sizeof(char), strlen(source)+1);
+	tokens->tokens = calloc(sizeof(char), len_source+1);
 	assert(NULL != tokens->tokens);
 	if(NULL == tokens->tokens){
 		free(tokens);
