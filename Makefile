@@ -8,7 +8,7 @@ MKDIR = mkdir
 DIR_BUILD = .build
 prefix = /usr/local
 
-PPFLAGS = -MT $@ -MMD -MP -MF $(DIR_BUILD)/$*.d
+PPFLAGS = -MT $@ -MMD -MP -MF $(DIR_BUILD)/$*.d -D_POSIX_C_SOURCE=200809L
 
 CFLAGS_LOCAL = -Wall -g -std=c99 -coverage
 CFLAGS_LOCAL += $(CFLAGS)
