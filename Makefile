@@ -41,7 +41,7 @@ $(DIR_BUILD)/$(LIB_SO) : $(addprefix $(DIR_BUILD)/, $(LIB_OBJECTS)) Makefile | $
 	$(LN) -sf $(shell pwd)/$(DIR_BUILD)/$(LIB_SO) $(DIR_BUILD)/lib$(LIB_NAME).so
 
 $(DIR_BUILD)/$(LIB_A) : $(addprefix $(DIR_BUILD)/, $(LIB_OBJECTS)) Makefile | $(DIR_BUILD)
-	$(AR) $(ARFLAGS) $@ $^
+	$(AR) $(ARFLAGS) $@ $(addprefix $(DIR_BUILD)/, $(LIB_OBJECTS))
 	$(LN) -sf $(shell pwd)/$(DIR_BUILD)/$(LIB_A) $(DIR_BUILD)/lib$(LIB_NAME).a
 
 $(addprefix $(DIR_BUILD)/, $(APP_OBJECT)) : $(DIR_BUILD)/%.o : %.c Makefile | $(DIR_BUILD)
