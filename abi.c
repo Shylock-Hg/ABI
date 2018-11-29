@@ -83,25 +83,25 @@ int main(int argc, char * argv[]){
 
 		char buf[MAX_LINE_BUF] = {0};
 		
-		bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
 		bf_context_t * context = bf_context_new(ABI_MEM_SIZE);
 
 		while(1){
 			printf(">>>");
-			fgets(buf, sizeof(buf), stdin);
+			if (NULL != fgets(buf, sizeof(buf), stdin)) {
+		                bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
+                                bf_ast_init_4_string(ast, buf);
 
-			bf_ast_init_4_string(ast, buf);
+                                //fprintf(stderr, "loop-depth == `%d`\n", bf_ast_loop_depth(ast));
 
-			//fprintf(stderr, "loop-depth == `%d`\n", bf_ast_loop_depth(ast));
+                                //bf_ast_dfs_pre(ast);
 
-			//bf_ast_dfs_pre(ast);
+                                if(bf_ast_executable(ast)){
+                                        bf_execute(context, ast);
 
-			if(bf_ast_executable(ast)){
-				bf_execute(context, ast);
-
-				bf_ast_release(ast);
-				ast = bf_ast_new(bf_instruction_interpreter);
-			}
+                                        bf_ast_release(ast);
+                                        ast = bf_ast_new(bf_instruction_interpreter);
+                                }
+                        }
 		}
 	}else{
 		fprintf(stderr,"Unkown mode!\n");
