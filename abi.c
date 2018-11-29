@@ -84,11 +84,11 @@ int main(int argc, char * argv[]){
 		char buf[MAX_LINE_BUF] = {0};
 		
 		bf_context_t * context = bf_context_new(ABI_MEM_SIZE);
+                bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
 
 		while(1){
 			printf(">>>");
 			if (NULL != fgets(buf, sizeof(buf), stdin)) {
-		                bf_ast_t * ast = bf_ast_new(bf_instruction_interpreter);
                                 bf_ast_init_4_string(ast, buf);
 
                                 //fprintf(stderr, "loop-depth == `%d`\n", bf_ast_loop_depth(ast));
