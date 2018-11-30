@@ -19,6 +19,9 @@ APP_SOURCE = abi.c
 APP_OBJECT = abi.o
 APP = abi
 
+LIB_INCLUDES = include/abi_bf.h \
+        include/abi_tokens.h
+
 LIB_SOURCES = source/abi_bf.c \
         source/abi_tokens.c
 LIB_OBJECTS = $(patsubst %.c, %.o, $(LIB_SOURCES))
@@ -66,6 +69,9 @@ install : all
 	$(LN) -sf "$(prefix)/lib/$(LIB_A)" "$(prefix)/lib/lib$(LIB_NAME).a"
 	$(INSTALL) -d "$(prefix)/bin"
 	$(INSTALL) "$(DIR_BUILD)/$(APP)" "$(prefix)/bin"
+	$(INSTALL) -d "$(prefix)/include"
+	$(MKDIR) -p "$(prefix)/include/$(LIB_NAME)"
+	for header in $(LIB_INCLUDES); do $(INSTALL) -m 444  "$${header}" "$(prefix)/include/$(LIB_NAME)"; done
 
 uninstall : 
 	$(RM) -f "$(prefix)/lib/$(LIB_SO)"
@@ -73,6 +79,7 @@ uninstall :
 	$(RM) -f "$(prefix)/lib/$(LIB_A)"
 	$(RM) -f "$(prefix)/lib/lib$(LIB_NAME).a"
 	$(RM) -f "$(prefix)/bin/$(APP)"
+	$(RM) -rf "$(prefix)/include/$(LIB_NAME)"
 
 test :
 	$(VALGRIND) echo 0 | $(APP) -f examples/196.bf
