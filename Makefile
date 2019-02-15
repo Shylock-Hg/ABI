@@ -34,7 +34,7 @@ DEPFILES = $(patsubst %.o, %.d, $(addprefix $(DIR_BUILD)/, $(LIB_OBJECTS)) $(DIR
 
 .PHONY : all clean install uninstall test
 
-all : $(DIR_BUILD) $(DIR_BUILD)/$(APP)
+all : $(DIR_BUILD)/$(APP)
 
 $(DIR_BUILD)/$(APP) : $(DIR_BUILD)/$(APP_OBJECT) $(DIR_BUILD)/$(LIB_SO) $(DIR_BUILD)/$(LIB_A) Makefile | $(DIR_BUILD)
 	$(CC) $(CFLAGS_LOCAL) -o $@ $< -L$(shell pwd)/$(DIR_BUILD) -l$(LIB_NAME)
