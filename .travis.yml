@@ -156,7 +156,7 @@ before_install:
     - sudo apt-get install valgrind
 
 script :
-    - make -j8
+    - make -j$(nproc)
     - sudo make install
     - export LD_LIBRARY_PATH=/usr/local/lib
     - make test
