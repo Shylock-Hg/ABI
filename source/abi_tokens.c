@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../include/abi_tokens.h"
+#include <abi/internal/abi_tokens.h>
 
 ///! \defgroup bf_ast_tokens_prototype
 /// @{
