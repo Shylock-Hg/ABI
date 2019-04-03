@@ -6,8 +6,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../include/abi_bf.h"
-#include "../include/abi_tokens.h"
+#include <abi/abi_bf.h>
+#include <abi/internal/abi_tokens.h>
 
 /*! \brief create a instruction
  *  \param token token character

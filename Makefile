@@ -4,13 +4,15 @@
 LN = ln
 INSTALL = install
 MKDIR = mkdir
+CP = cp
 
 DIR_BUILD = .build
+DIR_INCLUDES = include
 prefix = /usr/local
 
 PPFLAGS = -MT $@ -MMD -MP -MF $(patsubst %.o, %.d, $@) -D_POSIX_C_SOURCE=200809L
 
-CFLAGS_LOCAL = -Wall -g -std=c99 -coverage
+CFLAGS_LOCAL = -Wall -g -std=c99 -coverage -I$(DIR_INCLUDES)
 CFLAGS_LOCAL += $(CFLAGS)
 
 VALGRIND = valgrind --leak-check=full --show-leak-kinds=all
@@ -19,8 +21,8 @@ APP_SOURCE = abi.c
 APP_OBJECT = abi.o
 APP = abi
 
-LIB_INCLUDES = include/abi_bf.h \
-        include/abi_tokens.h
+LIB_INCLUDES = include/abi/abi_bf.h \
+        include/abi/internal/abi_tokens.h
 
 LIB_SOURCES = source/abi_bf.c \
         source/abi_tokens.c
@@ -70,8 +72,7 @@ install : all
 	$(INSTALL) -d "$(prefix)/bin"
 	$(INSTALL) "$(DIR_BUILD)/$(APP)" "$(prefix)/bin"
 	$(INSTALL) -d "$(prefix)/include"
-	$(MKDIR) -p "$(prefix)/include/$(LIB_NAME)"
-	for header in $(LIB_INCLUDES); do $(INSTALL) -m 444  "$${header}" "$(prefix)/include/$(LIB_NAME)"; done
+	$(CP) -r $(DIR_INCLUDES)/* "$(prefix)/include"
 
 uninstall : 
 	$(RM) -f "$(prefix)/lib/$(LIB_SO)"
