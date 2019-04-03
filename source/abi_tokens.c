@@ -5,11 +5,11 @@
  * */
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <string.h>
 
 #include <abi/internal/abi_tokens.h>
 
@@ -17,8 +17,8 @@
 /// @{
 /*
 typedef struct {
-	char * tokens;  //!< instruction tokens string
-	size_t index;  //!< index of current token
+        char * tokens;  //!< instruction tokens string
+        size_t index;  //!< index of current token
 } bf_tokens_t;
 */
 /// @}
@@ -30,55 +30,51 @@ typedef struct {
  *  \param source source code string
  *  \retval tokens instance
  * */
-bf_tokens_t * bf_ast_tokens_new(const char * source){
-        const size_t len_source = strnlen(source, MAX_SOURCE_STRING_LEN);
-        if (len_source >= MAX_SOURCE_STRING_LEN) {
-                return NULL;
-        }
+bf_tokens_t* bf_ast_tokens_new(const char* source) {
+    const size_t len_source = strnlen(source, MAX_SOURCE_STRING_LEN);
+    if (len_source >= MAX_SOURCE_STRING_LEN) {
+        return NULL;
+    }
 
-	assert(NULL != source);
-	if(NULL == source)
-		return NULL;
+    assert(NULL != source);
+    if (NULL == source) return NULL;
 
-	bf_tokens_t * tokens = malloc(sizeof(bf_tokens_t));
-	assert(NULL != tokens);
-	if(NULL == tokens)
-		return NULL;
+    bf_tokens_t* tokens = malloc(sizeof(bf_tokens_t));
+    assert(NULL != tokens);
+    if (NULL == tokens) return NULL;
 
-	//tokens->tokens = calloc(sizeof(char), strlen(source)+1);
-	tokens->tokens = calloc(sizeof(char), len_source+1);
-	assert(NULL != tokens->tokens);
-	if(NULL == tokens->tokens){
-		free(tokens);
-		return NULL;
-	}
-	strcpy(tokens->tokens, source);
-	tokens->index = 0;
+    // tokens->tokens = calloc(sizeof(char), strlen(source)+1);
+    tokens->tokens = calloc(sizeof(char), len_source + 1);
+    assert(NULL != tokens->tokens);
+    if (NULL == tokens->tokens) {
+        free(tokens);
+        return NULL;
+    }
+    strcpy(tokens->tokens, source);
+    tokens->index = 0;
 
-	return tokens;
+    return tokens;
 }
 
 /*! \brief release instance of AST tokens
  *  \param AST tokens instance
  * */
-void bf_ast_tokens_release(bf_tokens_t * tokens){
-	assert(NULL != tokens);
-	if(NULL == tokens)
-		return;
+void bf_ast_tokens_release(bf_tokens_t* tokens) {
+    assert(NULL != tokens);
+    if (NULL == tokens) return;
 
-	free(tokens->tokens);
-	free(tokens);
+    free(tokens->tokens);
+    free(tokens);
 }
 
-bool bf_ast_tokens_is_available(bf_tokens_t * tokens){
-	assert(NULL != tokens);
-	if(NULL == tokens)
-		return false;
+bool bf_ast_tokens_is_available(bf_tokens_t* tokens) {
+    assert(NULL != tokens);
+    if (NULL == tokens) return false;
 
-	if('\0' == tokens->tokens[tokens->index])
-		return false;
-	else
-		return true;
+    if ('\0' == tokens->tokens[tokens->index])
+        return false;
+    else
+        return true;
 }
 
 /*! \brief get token from source
@@ -86,59 +82,55 @@ bool bf_ast_tokens_is_available(bf_tokens_t * tokens){
  *  \param tokens tokens of source code
  *  \retval token got, EOF for tail
  * */
-int bf_ast_getc_4_source(FILE * stream, bf_tokens_t * tokens){
-	//assert(NULL == stream && NULL == tokens);
-	//assert(NULL != stream && NULL != tokens);
-	if(NULL == stream && NULL == tokens)
-		return EOF;
-	if(NULL != stream && NULL != tokens)
-		return EOF;
+int bf_ast_getc_4_source(FILE* stream, bf_tokens_t* tokens) {
+    // assert(NULL == stream && NULL == tokens);
+    // assert(NULL != stream && NULL != tokens);
+    if (NULL == stream && NULL == tokens) return EOF;
+    if (NULL != stream && NULL != tokens) return EOF;
 
-	if(NULL != stream)
-		return fgetc(stream);
+    if (NULL != stream) return fgetc(stream);
 
-	if(NULL != tokens){
-		if(NULL != tokens->tokens){
-			if('\0' == tokens->tokens[tokens->index])
-				return EOF;
-			else {
-				//fprintf(stderr, "get `%c` \n", tokens->tokens[tokens->index]);
-				return tokens->tokens[(tokens->index)++];
-			}
-		}
-	}
+    if (NULL != tokens) {
+        if (NULL != tokens->tokens) {
+            if ('\0' == tokens->tokens[tokens->index])
+                return EOF;
+            else {
+                // fprintf(stderr, "get `%c` \n",
+                // tokens->tokens[tokens->index]);
+                return tokens->tokens[(tokens->index)++];
+            }
+        }
+    }
 
-	return EOF;
+    return EOF;
 }
 
-/*! \brief unget token to source 
+/*! \brief unget token to source
  *  \param stream stdio.h stream
  *  \parma tokens tokens of source code
  *  \retval token got, EOF for tail
  * */
-int bf_ast_ungetc_2_source(char c, FILE * stream, bf_tokens_t * tokens){
-	//assert(NULL == stream && NULL == tokens);
-	//assert(NULL != stream && NULL != tokens);
-	if(NULL == stream && NULL == tokens)
-		return EOF;
-	if(NULL != stream && NULL != tokens)
-		return EOF;
+int bf_ast_ungetc_2_source(char c, FILE* stream, bf_tokens_t* tokens) {
+    // assert(NULL == stream && NULL == tokens);
+    // assert(NULL != stream && NULL != tokens);
+    if (NULL == stream && NULL == tokens) return EOF;
+    if (NULL != stream && NULL != tokens) return EOF;
 
-	if(NULL != stream){
-		return ungetc(c, stream);
-	}
+    if (NULL != stream) {
+        return ungetc(c, stream);
+    }
 
-	if(NULL != tokens){
-		if(NULL != tokens->tokens){
-			if(0 < tokens->index){
-				//fprintf(stderr, "unget `%c` \n", tokens->tokens[tokens->index-1]);
-				tokens->index --;
-			}
-		}
-	}
+    if (NULL != tokens) {
+        if (NULL != tokens->tokens) {
+            if (0 < tokens->index) {
+                // fprintf(stderr, "unget `%c` \n",
+                // tokens->tokens[tokens->index-1]);
+                tokens->index--;
+            }
+        }
+    }
 
-	return EOF;
+    return EOF;
 }
 
 /// @}
-
