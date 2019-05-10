@@ -5,6 +5,7 @@ LN = ln
 INSTALL = install
 MKDIR = mkdir
 CP = cp
+FMT = clang-format
 
 DIR_BUILD = .build
 DIR_INCLUDES = include
@@ -34,7 +35,7 @@ LIB_A = lib$(LIB_NAME).a.$(LIB_VERSION)
 
 DEPFILES = $(patsubst %.o, %.d, $(addprefix $(DIR_BUILD)/, $(LIB_OBJECTS)) $(DIR_BUILD)/$(APP_OBJECT))
 
-.PHONY : all clean install uninstall test
+.PHONY : all clean install uninstall test fmt
 
 all : $(DIR_BUILD)/$(APP)
 
@@ -92,5 +93,8 @@ test :
 
 clean : 
 	$(RM) -rf $(DIR_BUILD)
+
+fmt :
+	$(FMT) -i --style=file $$(find . -type f \( -name '*.c' -o -name '*.h' \))
 
 include $(DEPFILES)
