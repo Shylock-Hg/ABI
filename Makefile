@@ -98,3 +98,4 @@ fmt :
 	$(FMT) -i --style=file $$(find . -type f \( -name '*.c' -o -name '*.h' \))
 
 include $(DEPFILES)
+
